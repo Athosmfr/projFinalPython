@@ -27,27 +27,35 @@ matplotlib.use('agg')
 def index():
     form = MLForm()
 
-    knn_explanation = ('KNN (K-nearest neighbors): é um algoritmo que permite classificar novas amostras a partir da distância em relação às demais amostras do dataset.'
-                           'Os vizinhos no contexto do KNN são dados existentes no conjunto de treinamento. '
-                           'O modelo aprende com esses dados e utiliza a proximidade entre novos dados e os dados de treinamento para fazer previsões ou classificações.')
+    knn_explanation = (
+        'KNN (K-nearest neighbors): é um algoritmo que permite classificar novas amostras a partir da distância em relação às demais amostras do dataset.'
+        'Os vizinhos no contexto do KNN são dados existentes no conjunto de treinamento. '
+        'O modelo aprende com esses dados e utiliza a proximidade entre novos dados e os dados de treinamento para fazer previsões ou classificações.')
     knn_parameters = ('1o Parametro : N-neighbors (Numero de Vizinhos); \n'
-                      '2o Parametro : Weights (Peso - Uniform (Pesos iguais aos vizinhos), Distance (Vizinhos mais próximos tem mais peso)')
+                      '2o Parametro : Weights (Peso - Uniform (Pesos iguais aos vizinhos), Distance (Vizinhos mais próximos tem mais peso)\n'
+                      '3o Parâmetro : Leaf Size (Tamanho da folha para os algoritmos ball_tree ou kd_tree) *Minimo 30')
 
-    mlp_explanation = ('O MLP (Multilayer Perceptron) é um tipo de modelo de aprendizado de máquina que processa informações em camadas. Ele aprende com dados passados para fazer previsões ou '
-                       'tomar decisões em novas situações. Cada camada contém "neurônios" que transformam as informações.')
-    mlp_parameters = ('1o Parâmetro : Hidden_layer_sizes (Camadas Ocultas)\n'
-                      '2o Parâmetro : Max_iter (Número Máximo de Iterações)')
+    mlp_explanation = (
+        'O MLP (Multilayer Perceptron) é um tipo de modelo de aprendizado de máquina que processa informações em camadas. Ele aprende com dados passados para fazer previsões ou '
+        'tomar decisões em novas situações. Cada camada contém "neurônios" que transformam as informações.')
+    mlp_parameters = ('1o Parâmetro : Hidden Layer Sizes (Camadas Ocultas)\n'
+                      '2o Parâmetro : Max Iter (Número Máximo de Iterações)\n'
+                      '3o Parâmetro : Learning Rate (Taxa de Aprendizado) - Deve ser uma string com "invscaling", "constant", "adaptive"')
 
-    dt_explanation = ('A Decision Tree (Árvore de Decisão) é um modelo de aprendizado de máquina que toma decisões com base em condicionais. Ela divide os dados em conjuntos menores com base nas '
-                      'características mais importantes, formando uma estrutura de árvore. Cada divisão é determinada pela característica que melhor separa os dados. Isso continua até que o modelo '
-                      'crie uma estrutura hierárquica que pode ser usada para fazer previsões ou classificações.')
-    dt_parameters = ('1o Parâmetro : Hidden_layer_sizes (Camadas Ocultas)\n'
-                     '2o Parâmetro: Random_state (Estado Aleatório)')
+    dt_explanation = (
+        'A Decision Tree (Árvore de Decisão) é um modelo de aprendizado de máquina que toma decisões com base em condicionais. Ela divide os dados em conjuntos menores com base nas '
+        'características mais importantes, formando uma estrutura de árvore. Cada divisão é determinada pela característica que melhor separa os dados. Isso continua até que o modelo '
+        'crie uma estrutura hierárquica que pode ser usada para fazer previsões ou classificações.')
+    dt_parameters = ('1o Parâmetro : Max Depth (Profundidade Máxima)\n'
+                     '2o Parâmetro : Random State (Estado Aleatório)\n'
+                     '3o Parâmetro : Min Sample Leaf (Numero Minimo de Amostrar em um Nó)')
 
-    rf_explanation = ('Random Forest (Floresta Aleatória) é um modelo de aprendizado de máquina que constrói várias árvores de decisão e as combina para fazer previsões mais robustas. Cada árvore é '
-                      'treinada em uma amostra aleatória dos dados e faz previsões independentes.')
-    rf_parameters = ('1o Parâmetro : n_estimators (Número de Arvores)\n'
-                     '2o Parâmetro : max_depth (Profundidade Máxima das Arvores)')
+    rf_explanation = (
+        'Random Forest (Floresta Aleatória) é um modelo de aprendizado de máquina que constrói várias árvores de decisão e as combina para fazer previsões mais robustas. Cada árvore é '
+        'treinada em uma amostra aleatória dos dados e faz previsões independentes.')
+    rf_parameters = ('1o Parâmetro : N Estimators (Número de Árvores);\n'
+                     '2o Parâmetro : Max Features (Número máximo de características);\n'
+                     '3o Parâmetro : Max Depth (Profundidade Máxima das Árvores)')
 
     return render_template('index.html', form=form, knn_explanation=knn_explanation, knn_parameters=knn_parameters, mlp_explanation=mlp_explanation, mlp_parameters=mlp_parameters,
                            dt_explanation=dt_explanation, dt_parameters=dt_parameters, rf_explanation=rf_explanation, rf_parameters=rf_parameters)
@@ -110,7 +118,7 @@ def train():
         'tomar decisões em novas situações. Cada camada contém "neurônios" que transformam as informações.')
     mlp_parameters = ('1o Parâmetro : Hidden Layer Sizes (Camadas Ocultas)\n'
                       '2o Parâmetro : Max Iter (Número Máximo de Iterações)\n'
-                      '3o Parâmetro : Learning Rate (Taxa de Aprendizado)')
+                      '3o Parâmetro : Learning Rate (Taxa de Aprendizado) - Deve ser uma string com "invscaling", "constant", "adaptive"')
 
     dt_explanation = (
         'A Decision Tree (Árvore de Decisão) é um modelo de aprendizado de máquina que toma decisões com base em condicionais. Ela divide os dados em conjuntos menores com base nas '
@@ -123,8 +131,9 @@ def train():
     rf_explanation = (
         'Random Forest (Floresta Aleatória) é um modelo de aprendizado de máquina que constrói várias árvores de decisão e as combina para fazer previsões mais robustas. Cada árvore é '
         'treinada em uma amostra aleatória dos dados e faz previsões independentes.')
-    rf_parameters = ('1o Parâmetro : n_estimators (Número de Arvores)\n'
-                     '2o Parâmetro : max_depth (Profundidade Máxima das Arvores)')
+    rf_parameters = ('1o Parâmetro : N Estimators (Número de Árvores);\n'
+                     '2o Parâmetro : Max Features (Número máximo de características);\n'
+                     '3o Parâmetro : Max Depth (Profundidade Máxima das Árvores)')
 
     return render_template('index.html', form=MLForm(), result=result, knn_explanation=knn_explanation, knn_parameters=knn_parameters, mlp_explanation=mlp_explanation, mlp_parameters=mlp_parameters,
                            dt_explanation=dt_explanation, dt_parameters=dt_parameters, rf_explanation=rf_explanation, rf_parameters=rf_parameters)
