@@ -1,6 +1,6 @@
 from src import database
 
-class MLModel(db.Model):
+class MLModel(database.Model):
     id = database.Column(database.Integer, primary_key=True)
     name = database.Column(database.String(100), nullable=False)
     parameters = database.Column(database.String(100), nullable=False)

@@ -1,8 +1,9 @@
 import os
 
+import matplotlib
 import pandas as pd
 
-from flask import Flask, render_template, request, send_file, current_app
+from flask import Flask, render_template, request, send_file, current_app, redirect, url_for
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
@@ -20,11 +21,36 @@ import base64
 from src import app
 from src.forms import MLForm
 
+matplotlib.use('agg')
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    form = MLForm()  # Crie uma instância do formulário
-    return render_template('index.html', form=form)
+    form = MLForm()
+
+    knn_explanation = ('KNN (K-nearest neighbors): é um algoritmo que permite classificar novas amostras a partir da distância em relação às demais amostras do dataset.'
+                           'Os vizinhos no contexto do KNN são dados existentes no conjunto de treinamento. '
+                           'O modelo aprende com esses dados e utiliza a proximidade entre novos dados e os dados de treinamento para fazer previsões ou classificações.')
+    knn_parameters = ('1o Parametro : N-neighbors (Numero de Vizinhos); \n'
+                      '2o Parametro : Weights (Peso - Uniform (Pesos iguais aos vizinhos), Distance (Vizinhos mais próximos tem mais peso)')
+
+    mlp_explanation = ('O MLP (Multilayer Perceptron) é um tipo de modelo de aprendizado de máquina que processa informações em camadas. Ele aprende com dados passados para fazer previsões ou '
+                       'tomar decisões em novas situações. Cada camada contém "neurônios" que transformam as informações.')
+    mlp_parameters = ('1o Parâmetro : Hidden_layer_sizes (Camadas Ocultas)\n'
+                      '2o Parâmetro : Max_iter (Número Máximo de Iterações)')
+
+    dt_explanation = ('A Decision Tree (Árvore de Decisão) é um modelo de aprendizado de máquina que toma decisões com base em condicionais. Ela divide os dados em conjuntos menores com base nas '
+                      'características mais importantes, formando uma estrutura de árvore. Cada divisão é determinada pela característica que melhor separa os dados. Isso continua até que o modelo '
+                      'crie uma estrutura hierárquica que pode ser usada para fazer previsões ou classificações.')
+    dt_parameters = ('1o Parâmetro : Hidden_layer_sizes (Camadas Ocultas)\n'
+                     '2o Parâmetro: Random_state (Estado Aleatório)')
+
+    rf_explanation = ('Random Forest (Floresta Aleatória) é um modelo de aprendizado de máquina que constrói várias árvores de decisão e as combina para fazer previsões mais robustas. Cada árvore é '
+                      'treinada em uma amostra aleatória dos dados e faz previsões independentes.')
+    rf_parameters = ('1o Parâmetro : n_estimators (Número de Arvores)\n'
+                     '2o Parâmetro : max_depth (Profundidade Máxima das Arvores)')
+
+    return render_template('index.html', form=form, knn_explanation=knn_explanation, knn_parameters=knn_parameters, mlp_explanation=mlp_explanation, mlp_parameters=mlp_parameters,
+                           dt_explanation=dt_explanation, dt_parameters=dt_parameters, rf_explanation=rf_explanation, rf_parameters=rf_parameters)
 
 @app.route('/train', methods=['POST'])
 def train():
@@ -71,53 +97,73 @@ def train():
         'confusion_matrix_path': 'static/conf_photos/confusion_matrix.png'
     }
 
-    return render_template('index.html', form=MLForm(), result=result)
+    knn_explanation = (
+        'KNN (K-nearest neighbors): é um algoritmo que permite classificar novas amostras a partir da distância em relação às demais amostras do dataset.'
+        'Os vizinhos no contexto do KNN são dados existentes no conjunto de treinamento. '
+        'O modelo aprende com esses dados e utiliza a proximidade entre novos dados e os dados de treinamento para fazer previsões ou classificações.')
+    knn_parameters = ('1o Parametro : N-neighbors (Numero de Vizinhos); \n'
+                      '2o Parametro : Weights (Peso - Uniform (Pesos iguais aos vizinhos), Distance (Vizinhos mais próximos tem mais peso)')
+
+    mlp_explanation = (
+        'O MLP (Multilayer Perceptron) é um tipo de modelo de aprendizado de máquina que processa informações em camadas. Ele aprende com dados passados para fazer previsões ou '
+        'tomar decisões em novas situações. Cada camada contém "neurônios" que transformam as informações.')
+    mlp_parameters = ('1o Parâmetro : Hidden_layer_sizes (Camadas Ocultas)\n'
+                      '2o Parâmetro : Max_iter (Número Máximo de Iterações)')
+
+    dt_explanation = (
+        'A Decision Tree (Árvore de Decisão) é um modelo de aprendizado de máquina que toma decisões com base em condicionais. Ela divide os dados em conjuntos menores com base nas '
+        'características mais importantes, formando uma estrutura de árvore. Cada divisão é determinada pela característica que melhor separa os dados. Isso continua até que o modelo '
+        'crie uma estrutura hierárquica que pode ser usada para fazer previsões ou classificações.')
+    dt_parameters = ('1o Parâmetro : Hidden_layer_sizes (Camadas Ocultas)\n'
+                     '2o Parâmetro: Random_state (Estado Aleatório)')
+
+    rf_explanation = (
+        'Random Forest (Floresta Aleatória) é um modelo de aprendizado de máquina que constrói várias árvores de decisão e as combina para fazer previsões mais robustas. Cada árvore é '
+        'treinada em uma amostra aleatória dos dados e faz previsões independentes.')
+    rf_parameters = ('1o Parâmetro : n_estimators (Número de Arvores)\n'
+                     '2o Parâmetro : max_depth (Profundidade Máxima das Arvores)')
+
+    return render_template('index.html', form=MLForm(), result=result, knn_explanation=knn_explanation, knn_parameters=knn_parameters, mlp_explanation=mlp_explanation, mlp_parameters=mlp_parameters,
+                           dt_explanation=dt_explanation, dt_parameters=dt_parameters, rf_explanation=rf_explanation, rf_parameters=rf_parameters)
 def get_parameters(form_data, classifier_name):
-    # Implemente a lógica para extrair os parâmetros do formulário
     params = {}
-    for i in range(1, 4):  # Assumindo que você tem até 3 parâmetros, ajuste conforme necessário
+    for i in range(1, 4):
         param_key = f'param{i}'
         param_value = form_data.get(param_key)
         params[param_key] = param_value
 
     # Lógica específica para cada classificador
     if classifier_name == 'knn':
-        # Adicione lógica específica para KNN
         params['n_neighbors'] = int(params.get('param1'))
         params['weights'] = params.get('param2')
-
-    elif classifier_name == 'svm':
-        # Adicione lógica específica para SVM
-        params['C'] = float(params.get('param1'))
-        params['kernel'] = params.get('param2')
+        params['leaf_size'] = params.get('param3')
 
     elif classifier_name == 'mlp':
-        # Adicione lógica específica para MLP
         params['hidden_layer_size'] = int(params.get('param1'))
         params['max_iter'] = int(params.get('param2'))
+        params['learning_rate'] = params.get('param3')
 
     elif classifier_name == 'dt':
-        # Adicione lógica específica para Decision Tree
         params['max_depth'] = int(params.get('param1'))
+        params['random_state'] = int(params.get('param2'))
+        params['min_samples_leaf'] = int(params.get('param3'))
 
     elif classifier_name == 'rf':
-        # Adicione lógica específica para Random Forest
         params['n_estimators'] = int(params.get('param1'))
+        params['max_features'] = int(params.get('param2'))
+        params['max_depth'] = int(params.get('param3'))
 
     return params
 
 def get_classifier(name, params):
-    # Implemente a lógica para inicializar o classificador com os parâmetros
     if name == 'knn':
-        classifier = KNeighborsClassifier(n_neighbors=int(params['param1']))
-    elif name == 'svm':
-        classifier = SVC(C=float(params['param1']), kernel=params['param2'])
+        classifier = KNeighborsClassifier(n_neighbors=int(params['param1']), weights=params['param1'], leaf_size=params['param3'])
     elif name == 'mlp':
-        classifier = MLPClassifier(hidden_layer_sizes=(int(params['param1']),), max_iter=int(params['param2']))
+        classifier = MLPClassifier(hidden_layer_sizes=(int(params['param1']),), max_iter=int(params['param2']), learning_rate=params['param3'])
     elif name == 'dt':
-        classifier = DecisionTreeClassifier(max_depth=int(params['param1']))
+        classifier = DecisionTreeClassifier(max_depth=int(params['param1']), random_state=int(params['param2']), min_samples_leaf=params['param3'])
     elif name == 'rf':
-        classifier = RandomForestClassifier(n_estimators=int(params['param1']))
+        classifier = RandomForestClassifier(n_estimators=int(params['param1']), max_features=int(params['param2']), max_depth=params['param3'])
 
     return classifier
 
@@ -128,14 +174,13 @@ def plot_confusion_matrix(cm, classes):
     plt.xlabel('Predicted')
     plt.ylabel('Actual')
     plt.title('Confusion Matrix')
-    # plt.savefig('static/conf_photos/confusion_matrix.png')
 
-    # Verifique se o diretório 'static/conf_photos' existe, senão crie
-    conf_photos_dir = 'static/conf_photos'
+    # Verifica se a pasta 'src/static/conf_photos' existe, senão é criada
+    conf_photos_dir = 'src/static/conf_photos'
     if not os.path.exists(conf_photos_dir):
         os.makedirs(conf_photos_dir)
 
-    # Salve a matriz de confusão no diretório 'static/conf_photos' com um nome específico
+    # Salve a matriz de confusão no diretório 'src/static/conf_photos' com um nome específico
     plt.savefig(os.path.join(conf_photos_dir, 'confusion_matrix.png'))
 
 def plot_to_base64():
@@ -145,10 +190,8 @@ def plot_to_base64():
     img_str = base64.b64encode(img.read()).decode()
     return img_str
 
-
 @app.route('/download_confusion_matrix')
 def download_confusion_matrix():
-    # return send_file('static/conf_photos/confusion_matrix.png', as_attachment=True, mimetype='image/png')
     conf_photos_dir = os.path.join(current_app.root_path, 'static', 'conf_photos')
     file_path = os.path.join(conf_photos_dir, 'confusion_matrix.png')
     return send_file(file_path, as_attachment=True, mimetype='image/png')
