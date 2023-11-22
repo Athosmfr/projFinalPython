@@ -102,20 +102,23 @@ def train():
         'Os vizinhos no contexto do KNN são dados existentes no conjunto de treinamento. '
         'O modelo aprende com esses dados e utiliza a proximidade entre novos dados e os dados de treinamento para fazer previsões ou classificações.')
     knn_parameters = ('1o Parametro : N-neighbors (Numero de Vizinhos); \n'
-                      '2o Parametro : Weights (Peso - Uniform (Pesos iguais aos vizinhos), Distance (Vizinhos mais próximos tem mais peso)')
+                      '2o Parametro : Weights (Peso - Uniform (Pesos iguais aos vizinhos), Distance (Vizinhos mais próximos tem mais peso)\n'
+                      '3o Parâmetro : Leaf Size (Tamanho da folha para os algoritmos ball_tree ou kd_tree) *Minimo 30')
 
     mlp_explanation = (
         'O MLP (Multilayer Perceptron) é um tipo de modelo de aprendizado de máquina que processa informações em camadas. Ele aprende com dados passados para fazer previsões ou '
         'tomar decisões em novas situações. Cada camada contém "neurônios" que transformam as informações.')
-    mlp_parameters = ('1o Parâmetro : Hidden_layer_sizes (Camadas Ocultas)\n'
-                      '2o Parâmetro : Max_iter (Número Máximo de Iterações)')
+    mlp_parameters = ('1o Parâmetro : Hidden Layer Sizes (Camadas Ocultas)\n'
+                      '2o Parâmetro : Max Iter (Número Máximo de Iterações)\n'
+                      '3o Parâmetro : Learning Rate (Taxa de Aprendizado)')
 
     dt_explanation = (
         'A Decision Tree (Árvore de Decisão) é um modelo de aprendizado de máquina que toma decisões com base em condicionais. Ela divide os dados em conjuntos menores com base nas '
         'características mais importantes, formando uma estrutura de árvore. Cada divisão é determinada pela característica que melhor separa os dados. Isso continua até que o modelo '
         'crie uma estrutura hierárquica que pode ser usada para fazer previsões ou classificações.')
-    dt_parameters = ('1o Parâmetro : Hidden_layer_sizes (Camadas Ocultas)\n'
-                     '2o Parâmetro: Random_state (Estado Aleatório)')
+    dt_parameters = ('1o Parâmetro : Max Depth (Profundidade Máxima)\n'
+                     '2o Parâmetro : Random State (Estado Aleatório)\n'
+                     '3o Parâmetro : Min Sample Leaf (Numero Minimo de Amostrar em um Nó)')
 
     rf_explanation = (
         'Random Forest (Floresta Aleatória) é um modelo de aprendizado de máquina que constrói várias árvores de decisão e as combina para fazer previsões mais robustas. Cada árvore é '
@@ -136,10 +139,10 @@ def get_parameters(form_data, classifier_name):
     if classifier_name == 'knn':
         params['n_neighbors'] = int(params.get('param1'))
         params['weights'] = params.get('param2')
-        params['leaf_size'] = params.get('param3')
+        params['leaf_size'] = int(params.get('param3'))
 
     elif classifier_name == 'mlp':
-        params['hidden_layer_size'] = int(params.get('param1'))
+        params['hidden_layer_sizes'] = int(params.get('param1'))
         params['max_iter'] = int(params.get('param2'))
         params['learning_rate'] = params.get('param3')
 
@@ -157,16 +160,15 @@ def get_parameters(form_data, classifier_name):
 
 def get_classifier(name, params):
     if name == 'knn':
-        classifier = KNeighborsClassifier(n_neighbors=int(params['param1']), weights=params['param1'], leaf_size=params['param3'])
+        classifier = KNeighborsClassifier(n_neighbors=params['n_neighbors'], weights=params['weights'], leaf_size=params['leaf_size'])
     elif name == 'mlp':
-        classifier = MLPClassifier(hidden_layer_sizes=(int(params['param1']),), max_iter=int(params['param2']), learning_rate=params['param3'])
+        classifier = MLPClassifier(hidden_layer_sizes=(params['hidden_layer_sizes'],), max_iter=params['max_iter'], learning_rate=params['learning_rate'])
     elif name == 'dt':
-        classifier = DecisionTreeClassifier(max_depth=int(params['param1']), random_state=int(params['param2']), min_samples_leaf=params['param3'])
+        classifier = DecisionTreeClassifier(max_depth=params['max_depth'], random_state=params['random_state'], min_samples_leaf=params['min_samples_leaf'])
     elif name == 'rf':
-        classifier = RandomForestClassifier(n_estimators=int(params['param1']), max_features=int(params['param2']), max_depth=params['param3'])
+        classifier = RandomForestClassifier(n_estimators=params['n_estimators'], max_features=params['max_features'], max_depth=params['max_depth'])
 
     return classifier
-
 
 def plot_confusion_matrix(cm, classes):
     plt.figure(figsize=(8, 6))
