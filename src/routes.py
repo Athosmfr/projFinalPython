@@ -31,7 +31,7 @@ def index():
         'KNN (K-nearest neighbors): é um algoritmo que permite classificar novas amostras a partir da distância em relação às demais amostras do dataset.'
         'Os vizinhos no contexto do KNN são dados existentes no conjunto de treinamento. '
         'O modelo aprende com esses dados e utiliza a proximidade entre novos dados e os dados de treinamento para fazer previsões ou classificações.')
-    knn_parameters = ('1o Parametro : N-neighbors (Numero de Vizinhos); \n'
+    knn_parameters = ('1o Parametro : N-neighbors (Numero de Vizinhos);\n'
                       '2o Parametro : Weights (Peso - Uniform (Pesos iguais aos vizinhos), Distance (Vizinhos mais próximos tem mais peso)\n'
                       '3o Parâmetro : Leaf Size (Tamanho da folha para os algoritmos ball_tree ou kd_tree) *Minimo 30')
 
@@ -62,16 +62,16 @@ def index():
 
 @app.route('/train', methods=['POST'])
 def train():
-    classifier_name = request.form.get('classifier')
+    classifier_name = request.form.get('classifier') # pega o classificador escolhido
     parameters = get_parameters(request.form, classifier_name)
 
     # Carregue o conjunto de dados Iris
     iris = datasets.load_iris()
-    X = iris.data
-    y = iris.target
+    X = iris.data # dataset sem info da coluna y (treina)
+    y = iris.target # coluna a prever
 
     # Divida o conjunto de dados em treino e teste
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
     # Inicialize o classificador selecionado com os parâmetros escolhidos
     classifier = get_classifier(classifier_name, parameters)
